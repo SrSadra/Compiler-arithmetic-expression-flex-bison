@@ -1,15 +1,16 @@
 %{
-#include "SyntaxInter.tab.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "VarClass.h"
 #include <stdio.h>
 #define YYSTYPE struct Digits
+#include "VarClass.h"
+#include "SyntaxInter.tab.h"
 
+struct Digits getDigits(int val);
 
 %}
 
-struct Digits getDigits(int val)
 
 
 digit [0-9]
@@ -22,6 +23,7 @@ space [ \t]+
 %% 
 
 {integer}  { 
+            printf("alo");
             yylval =  getDigits(atoi(yytext));
             return NUMBER;
             } 
@@ -49,28 +51,23 @@ void reverseString(char* str) {
     }
 }
 
-struct Digits* getDigits(int val){
-    printf("%d" ,val);
-    struct Digits* digits =(struct Digits*) malloc(sizeof(struct Digits));
-    digits->value = val;
+struct Digits getDigits(int val){
+    printf("in digit - %d" ,val);
+    struct Digits digits;
+    digits.value = val;
     int i = 0;
-    digits->arr = (char*) malloc(sizeof(char) * 1000);
-    digits->arrSize = 0;
+    digits.arrSize = 0;
     while (val != 0){
-        digits->arr[i++] = (val  % 10) + '0';
+        digits.arr[i++] = (val  % 10) + '0';
         val /= 10;
     };
-    digits->arr[i] = '\0';
-    digits->arrSize = i;
-    reverseString(digits->arr);
-    digits->tmp = (char*) malloc(sizeof(char) * 1000);
-    strcpy(digits->tmp , digits->arr);
-    printf("alo");
+    digits.arr[i] = '\0';
+    digits.arrSize = i;
+    reverseString(digits.arr);
+    strcpy(digits.tmp , digits.arr);
     return digits;
 }
 
 
 
 int yywrap(){return 1;}
-
-
