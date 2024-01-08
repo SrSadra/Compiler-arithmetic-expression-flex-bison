@@ -23,7 +23,6 @@ space [ \t]+
 %% 
 
 {integer}  { 
-            printf("alo");
             yylval =  getDigits(atoi(yytext));
             return NUMBER;
             } 
@@ -52,7 +51,6 @@ void reverseString(char* str) {
 }
 
 struct Digits getDigits(int val){
-    printf("in digit - %d" ,val);
     struct Digits digits;
     digits.value = val;
     int i = 0;

@@ -9,9 +9,13 @@
 int varInd = 1;
 char* getVar();
 
-char* genVar(char* first,char op,char* second);
+char *genVar(char* resArr, char* first,char op,char* second);
+int sumDigits(struct Digits* b);
+
 void plusFunc(struct Digits* res ,struct Digits* a , struct Digits* b);
 void minusFunc(struct Digits* res ,struct Digits* a , struct Digits* b);
+void mulFunc(struct Digits* res ,struct Digits* a , struct Digits* b);
+void divFunc(struct Digits* res ,struct Digits* a , struct Digits* b);
 
 %}
  
@@ -31,21 +35,21 @@ Input:
 
 Line:
      END
-     | E END {printf("%s = %s" , $1.tmp , $1.arr); return 0;}
+     | E END {return 0;}
 ;
 
 E : T { $$ = $1;}
   | E '+' T 
   {
     plusFunc(&$$ , &$1 , &$3);
-    printf("in plus %s , %s , %s\n" , $$.arr  , $1.arr , $3.arr);
-    strcpy($$.tmp , genVar($1.tmp , '+' ,$3.tmp));
+    strcpy($$.tmp , genVar($$.arr, $1.tmp , '+' ,$3.tmp));
 
   }
   | E '-' T  
   {
     minusFunc(&$$ , &$1 , &$3);
-    strcpy($$.tmp , genVar($1.tmp , '-' ,$3.tmp));
+    strcpy($$.tmp , genVar($$.arr , $1.tmp , '-' ,$3.tmp));
+
   }
   ;
 
@@ -54,7 +58,15 @@ T : F
     $$ = $1;
     }
   | T '*' F 
+  {
+    mulFunc(&$$ , &$1 , &$3);
+    strcpy($$.tmp , genVar($$.arr , $1.tmp , '*' ,$3.tmp));
+  }
   | T '/' F 
+  {
+    divFunc(&$$ , &$1 , &$3);
+    strcpy($$.tmp , genVar($$.arr , $1.tmp , '/' ,$3.tmp));
+  }
   ;
 
 F : '(' E ')' { $$ = $2; }
@@ -63,19 +75,18 @@ F : '(' E ')' { $$ = $2; }
 
 %%
 
-char *genVar(char* first,char op,char* second)
-{
+char *genVar(char* resArr, char* first,char op,char* second){
     char* word = (char*)malloc(sizeof(char) * 1000);
     sprintf(word,"t%d",varInd++);
     printf("%s = %s %c %s\n",word,first,op,second);
-
+    printf("%s = %s\n" , word , resArr);
     return word; //Returns variable name like t1,t2,t3... properly
 }
 
 void plusFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
   int flg = 0;
   int size = a->arrSize;
-  char temp[2];
+  int ind = size;
   strcpy(res->arr , a->arr);
   for (int i = 0 ; i < b->arrSize ; i++){
     for (int j = 0 ; j < a->arrSize ; j++){
@@ -85,22 +96,17 @@ void plusFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
       }
     }
     if (flg == 0){
-        temp[0] = b->arr[i];
-        temp[1] = '\0';  // Null-terminate the string
-        strcat(res->arr , temp);
-        size++;
+        res->arr[ind++] = b->arr[i];
     }
     flg = 0;
   }
-  res->arrSize = size;
+  res->arr[ind] = '\0';
+  res->arrSize = ind;
 }
 
 void minusFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
   int flg = 0;
-  char temp[2];
   int ind = 0;
-  res->arr[0] = '\0';
-  res->arrSize = 0;
   for (int i = 0 ; i < a->arrSize ; i++){
     for (int j = 0 ; j < b->arrSize ; j++){
       if (a->arr[i] == b->arr[j]){
@@ -109,16 +115,63 @@ void minusFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
       }
     }
     if (flg == 0){
-      temp[0] = a->arr[i];
-      temp[1] = '\0';
-      strcat(res->arr , temp);
-      res->arrSize += 1;
-      printf("\nin minus %s\n" , res->arr);
+      res->arr[ind++] = a->arr[i];
     }
     flg = 0;
   }
+  res->arrSize = ind;
+  res->arr[ind] = '\0';
 }
 
+int sumDigits(struct Digits* b){
+  int result = 0;
+  for (int i = 0 ; i < b->arrSize ; i++){
+    result += (b->arr[i] - '0');
+    if (result > 9){
+      int tmp = result;
+      result = 0;
+      while (tmp != 0){
+        result += tmp % 10;
+        tmp /= 10;
+      }
+    }
+  }
+  return result;
+}
+
+
+void mulFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
+  int result = sumDigits(b);
+
+  strcpy(res->arr , a->arr);
+  res->arrSize = a->arrSize;
+  int flg = 0;
+  for (int j = 0 ; j < res->arrSize ; j++){
+    if (a->arr[j] == (result + '0')){
+      flg = 1;
+      break;
+    }
+  }
+  if (flg == 0){
+    res->arr[a->arrSize] = result + '0';
+    res->arr[a->arrSize + 1] = '\0';
+    res->arrSize = res->arrSize + 1;
+  }
+}
+
+
+void divFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
+  int result = sumDigits(b);
+  res->arrSize = 0;
+  int ind = 0;
+  for (int j = 0 ; j < a->arrSize ; j++){
+    if (a->arr[j] != (result + '0')){
+      res->arr[ind++] = a->arr[j];
+    }
+  }
+  res->arr[ind] = '\0';
+  res->arrSize = ind;
+}
 
 
 int main() {
