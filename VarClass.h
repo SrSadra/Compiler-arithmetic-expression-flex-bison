@@ -5,8 +5,10 @@
 struct Digits {
     char arr[100];
     int arrSize;
-    int value;
     char tmp[100];
 };
+
+void reverseString(char* str);
+struct Digits getDigits(int val);
 
 

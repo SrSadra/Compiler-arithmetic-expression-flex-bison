@@ -7,7 +7,6 @@
 #define YYSTYPE struct Digits
 
 int varInd = 1;
-char* getVar();
 
 char *genVar(char* resArr, char* first,char op,char* second);
 int sumDigits(struct Digits* b);
@@ -39,7 +38,7 @@ Line:
 ;
 
 E : T { $$ = $1;}
-  | E '+' T 
+  | E '+' T
   {
     plusFunc(&$$ , &$1 , &$3);
     strcpy($$.tmp , genVar($$.arr, $1.tmp , '+' ,$3.tmp));
@@ -142,7 +141,6 @@ int sumDigits(struct Digits* b){
 
 void mulFunc(struct Digits* res ,struct Digits* a , struct Digits* b){
   int result = sumDigits(b);
-
   strcpy(res->arr , a->arr);
   res->arrSize = a->arrSize;
   int flg = 0;
